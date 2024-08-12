@@ -1,4 +1,4 @@
-package com.example.spring_mock_server.all_in_one;
+package com.example.spring_mock_server.test_all_in_one;
 
 import org.mockserver.mock.action.ExpectationCallback;
 import org.mockserver.model.HttpRequest;

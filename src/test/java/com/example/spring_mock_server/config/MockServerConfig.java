@@ -18,10 +18,15 @@ import static org.mockserver.model.HttpResponse.response;
 public class MockServerConfig {
     private static final Integer MOCK_SERVER_PORT = 1099;
     private final ClientAndServer clientAndServer;
+    // todo mhk: we can remove mockServerClient and use clientAndServer instead.
     public final MockServerClient mockServerClient = new MockServerClient("localhost", MOCK_SERVER_PORT);
 
     public MockServerConfig() {
         this.clientAndServer = ClientAndServer.startClientAndServer(MOCK_SERVER_PORT);
+    }
+
+    public void stopServer() {
+        clientAndServer.stop();
     }
 
     public void registerHelloWorldEndpoint() {
@@ -44,10 +49,6 @@ public class MockServerConfig {
                         .withPath("/api/helloWorld")
 //                VerificationTimes.exactly(1)
         );
-    }
-
-    public void stopServer() {
-        clientAndServer.stop();
     }
 
     public void registerDynamicLengthEndpoint() {

@@ -1,10 +1,11 @@
-package com.example.spring_mock_server.all_in_one;
+package com.example.spring_mock_server.test_all_in_one;
 
 import org.junit.jupiter.api.*;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.Header;
 import org.mockserver.model.HttpForward;
 import org.mockserver.verify.VerificationTimes;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -17,9 +18,17 @@ import static org.mockserver.model.HttpResponse.notFoundResponse;
 import static org.mockserver.model.HttpResponse.response;
 import static org.mockserver.model.HttpForward.forward;
 
+@SpringBootTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class AllInOneTest {
 
     private ClientAndServer mockServer;
+    private RestTemplate restTemplate;
+
+    @BeforeAll
+    public void setup(){
+        restTemplate = new RestTemplate();
+    }
 
     @BeforeEach
     public void startServer() {
@@ -39,7 +48,6 @@ public class AllInOneTest {
                 .respond(response()
                         .withStatusCode(200)
                         .withBody("This is a fixed response"));
-        RestTemplate restTemplate = new RestTemplate();
         String result = restTemplate.getForObject("http://localhost:1093/api/test", String.class);
         assertThat(result).isEqualTo("This is a fixed response");
     }
@@ -55,7 +63,6 @@ public class AllInOneTest {
                         .withHost("www.mock-server.com")
                         .withPort(80)
                         .withScheme(HttpForward.Scheme.HTTP));
-        RestTemplate restTemplate = new RestTemplate();
         String result = restTemplate.getForObject("http://localhost:1093/index.html", String.class);
         assertThat(result).isEqualTo("Expected response from example.com");
     }
@@ -74,7 +81,6 @@ public class AllInOneTest {
                 return notFoundResponse();
             }
         });
-        RestTemplate restTemplate = new RestTemplate();
         String requestBody = "hello callback";
         String result = restTemplate.postForObject("http://localhost:1093/api/callback", requestBody, String.class);
         assertThat(result).isEqualTo("Callback executed with body: " + requestBody);
@@ -88,7 +94,6 @@ public class AllInOneTest {
                 respond(response()
                         .withStatusCode(200)
                         .withBody("Verification Success"));
-        RestTemplate restTemplate = new RestTemplate();
         String result = restTemplate.postForObject("http://localhost:1093/api/verify", null, String.class);
         mockServer.verify(request()
                         .withMethod("POST")
@@ -122,7 +127,6 @@ public class AllInOneTest {
                         .withStatusCode(HttpStatus.OK.value())
                         .withHeader("Content-Type", "text/xml; charset=utf-8")
                         .withBody(soapResponse));
-        RestTemplate restTemplate = new RestTemplate();
         String result = restTemplate.postForObject("http://localhost:1093/api/soap", soapRequest, String.class);
         assertThat(result).isEqualTo(soapResponse);
     }
@@ -147,7 +151,6 @@ public class AllInOneTest {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
         HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
-        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> response = restTemplate.exchange(
                 "http://localhost:1093/validate",
                 HttpMethod.POST,

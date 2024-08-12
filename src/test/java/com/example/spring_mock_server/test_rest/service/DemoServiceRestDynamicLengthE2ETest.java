@@ -1,4 +1,4 @@
-package com.example.spring_mock_server.rest.service;
+package com.example.spring_mock_server.test_rest.service;
 
 import com.example.spring_mock_server.config.MockServerConfig;
 import com.example.spring_mock_server.exception.EmptyValueException;
